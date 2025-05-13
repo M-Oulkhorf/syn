@@ -1,6 +1,6 @@
 # Syn – Application de gestion
 
-**Syn** est une application web **Laravel** développée pour la coopérative Synercoop dans le cadre de mon stage BTS SIO SLAM 2024. Elle permet de gérer les informations des entrepreneurs (affichage, modification et ajout). L’interface est réalisée en **Blade** et **Bootstrap**, et les données sont stockées dans une base MySQL.
+**Syn** est une application web **Laravel** développée pour la coopérative Synercoop dans le cadre de mon stage BTS SIO SLAM 2024. Elle permet de gérer les informations des entrepreneurs (affichage, modification et création). L’interface est réalisée en **Blade** et **Bootstrap**, et les données sont stockées dans une base MySQL.
 
 ---
 
@@ -8,7 +8,6 @@
 
 - Gestion des utilisateurs (CRUD, authentification)
 - Gestion des animations (création, modification, visualisation)
-- Planification de créneaux horaires
 - Interface d’administration sécurisée
 - Interface responsive (Bootstrap)
 
