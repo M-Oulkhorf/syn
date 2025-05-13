@@ -7,7 +7,7 @@
 ## 🧩 Fonctionnalités principales
 
 - Gestion des utilisateurs (CRUD, authentification)
-- Gestion des animations (création, modification, visualisation)
+- Gestion des informations des entrepreneurs (création, modification, visualisation)
 - Interface d’administration sécurisée
 - Interface responsive (Bootstrap)
 
