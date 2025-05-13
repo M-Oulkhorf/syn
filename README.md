@@ -92,5 +92,5 @@ Par défaut, l'application est accessible à :
 ## 👨‍💻 Auteur
 
 **Mohamed Oulkhorf**  
-Stage BTS SIO SLAM 2024
+Stagiaire informatique
 
