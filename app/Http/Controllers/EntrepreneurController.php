@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\domicile_entrepreneur;
 use App\Http\Requests\StoreEntrepreneurRequest;
 use App\Http\Requests\UpdateEntrepreneurRequest;
+use App\Http\Requests\updateActiviteRequest;
+use App\Http\Requests\updateContratRequest;
 use App\Models\College;
 
 class EntrepreneurController extends Controller
@@ -276,13 +278,14 @@ class EntrepreneurController extends Controller
         return view('entrepreneur.informations', $data);
     }
 
-    // Fonction pour mettre à jour les informations d'un entrepreneur existant
+    // Fonction pour mettre à jour les informations personnelles d'un entrepreneur
     public function update(UpdateEntrepreneurRequest $request, $id)
     {
         try {
             DB::beginTransaction();
             $validatedData = $request->validated();
             $entrepreneur = Entrepreneur::findOrFail($id);
+            
             // Mise à jour des données personnelles de l'entrepreneur
             $entrepreneur->update([
                 'matricule_silae' => $validatedData['MatriculeSILAE'],
@@ -298,17 +301,19 @@ class EntrepreneurController extends Controller
                 'telephone2_entrepreneur' => $validatedData['telephone2'] ?? ' ',
                 'mail_entrepreneur' => $validatedData['email'],
                 'demandeur_emploi' => $validatedData['demandeurEmploi'] ?? null,
-                'entrepreneur_actif' => null,
+                'entrepreneur_actif' => $validatedData['entrepreneurActif'] ?? null,
                 'cadeau_id' => $validatedData['cadeau'] ?? null,
                 'dpt_entree_id' => $validatedData['dptentree'],
-                'dpt_actuel_id' => $validatedData['dptentree'],
+                'dpt_actuel_id' => $validatedData['dptactuel'] ?? $validatedData['dptentree'],
                 'Accompagnant_id' => $validatedData['accompagnant'] ? $validatedData['accompagnant'] : null,
                 'date_fin_accompagnement' => $validatedData['datefinaccompagnement'] ?? null,
                 'date_sortie' => $validatedData['datesortie'] ?? null,
             ]);
 
             // Création ou mise à jour de l'adresse de l'entrepreneur
-            domicile_entrepreneur::create([
+            $domicile = domicile_entrepreneur::where('Entrepreneur_id', $id)->first();
+            
+            $domicileData = [
                 'Entrepreneur_id' => $id,
                 'num_rue_domicile_entrepreneur' => $validatedData['numRue'],
                 'rue_domicile_entrepreneur' => $validatedData['rue'],
@@ -316,10 +321,39 @@ class EntrepreneurController extends Controller
                 'cp_domicile_entrepreneur' => $validatedData['cp'],
                 'dpt_id' => $validatedData['departement'],
                 'region_id' => $validatedData['region'],
-            ]);
+            ];
 
-            // Mise à jour des données de contrat de l'entrepreneur
+            if ($domicile) {
+                $domicile->update($domicileData);
+            } else {
+                domicile_entrepreneur::create($domicileData);
+            }
+
+            DB::commit();
+            return redirect()->route('entrepreneurs.show', $id)->with('success', 'Informations personnelles mises à jour avec succès !');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
+        }
+    }
+
+    // Fonction pour mettre à jour les informations de contrat d'un entrepreneur
+    public function updateContrat(UpdateContratRequest $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Validation des données spécifiques au contrat
+            $validatedData = $request->validated();
+            $entrepreneur = Entrepreneur::findOrFail($id);
+
+            // Récupération du dernier contrat
             $dernierTravailler = Travailler::where('entrepreneur_id', $id)->latest()->first();
+            if (!$dernierTravailler) {
+                throw new \Exception('Aucun contrat trouvé pour cet entrepreneur');
+            }
+
+            // Mise à jour des données de contrat
             $contrat = Contrat::findOrFail($dernierTravailler->Contrat_id);
             $contrat->update([
                 'type_contrat_id' => $validatedData['contrat'],
@@ -329,31 +363,60 @@ class EntrepreneurController extends Controller
             ]);
 
             // Mise à jour ou création de la visite médicale
-            $visiteMedicale=visite_medicale::findOrFail($dernierTravailler->visite_medicale_id);
-            if($validatedData['datevisitemedicale'] == $visiteMedicale->date_visite){
-                $visiteMedicale->update([
+            if (!empty($validatedData['datevisitemedicale'])) {
+                $visiteMedicale = visite_medicale::find($dernierTravailler->visite_medicale_id);
+                
+                $visiteMedicaleData = [
                     'Entrepreneur_id' => $id,
                     'date_visite' => $validatedData['datevisitemedicale'],
                     'resultat_visite' => $validatedData['situationvisite'],
                     'date_prochaine_visite' => $validatedData['dateprochainevisite'],
-                ]);
-            }else{
-                visite_medicale::create([
-                    'Entrepreneur_id' => $id,
-                    'date_visite' => $validatedData['datevisitemedicale'],
-                    'resultat_visite' => $validatedData['situationvisite'],
-                    'date_prochaine_visite' => $validatedData['dateprochainevisite'],
-                ]);
+                ];
+
+                if ($visiteMedicale && $validatedData['datevisitemedicale'] == $visiteMedicale->date_visite) {
+                    $visiteMedicale->update($visiteMedicaleData);
+                } else {
+                    $nouvelleVisite = visite_medicale::create($visiteMedicaleData);
+                    $dernierTravailler->update(['visite_medicale_id' => $nouvelleVisite->id]);
+                }
             }
 
-            // Mise à jour des données Travailler de l'entrepreneur
+            // Mise à jour des données Travailler
             $dernierTravailler->update([
                 'id_entite' => $validatedData['entite'],
                 'adhesion_en_cours' => $validatedData['adhesionencoursNon'],
+            ]);
+
+            DB::commit();
+            return redirect()->route('entrepreneurs.show', $id)->with('success', 'Informations de contrat mises à jour avec succès !');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Erreur lors de la mise à jour du contrat : ' . $e->getMessage());
+        }
+    }
+
+    // Fonction pour mettre à jour les informations d'activité d'un entrepreneur
+    public function updateActivite(UpdateActiviteRequest $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Validation des données spécifiques à l'activité
+            $validatedData = $request->validated();
+            $entrepreneur = Entrepreneur::findOrFail($id);
+            
+            // Récupération du dernier contrat de travail
+            $dernierTravailler = Travailler::where('entrepreneur_id', $id)->latest()->first();
+            if (!$dernierTravailler) {
+                throw new \Exception('Aucune activité trouvée pour cet entrepreneur');
+            }
+
+            // Mise à jour de la fiche site dans Travailler
+            $dernierTravailler->update([
                 'fiche_site' => $validatedData['fiche_site'],
             ]);
 
-            // Mise à jour des données de l'activité de l'entrepreneur
+            // Mise à jour des données de l'activité
             $activite = Activite::findOrFail($dernierTravailler->Activite_id);
             $activite->update([
                 'nom_activite' => $validatedData['nom_activite'],
@@ -368,18 +431,24 @@ class EntrepreneurController extends Controller
                 'rcpro_activite' => $validatedData['rcpro_activite'],
             ]);
 
-            // Mise à jour des informations du boitier SUM UP
-            $utilisationSumUp = utilisation_sum_up::where('Activite_id', $dernierTravailler->Activite_id)->latest()->first();
-            $boitierSumUp=boitier_sum_up::findOrFail($utilisationSumUp->boitier_sum_up_id);
-            $boitierSumUp->update([
-                'num_sum_up' => $validatedData['boitier_sum_up'],
-            ]);
+            // Mise à jour des informations du boitier SUM UP si fourni
+            if (!empty($validatedData['boitier_sum_up'])) {
+                $utilisationSumUp = utilisation_sum_up::where('Activite_id', $dernierTravailler->Activite_id)->latest()->first();
+                if ($utilisationSumUp) {
+                    $boitierSumUp = boitier_sum_up::find($utilisationSumUp->boitier_sum_up_id);
+                    if ($boitierSumUp) {
+                        $boitierSumUp->update([
+                            'num_sum_up' => $validatedData['boitier_sum_up'],
+                        ]);
+                    }
+                }
+            }
 
             DB::commit();
-            return redirect()->route('entrepreneurs.show', $id)->with('success', 'Mise à jour réussi !');
+            return redirect()->route('entrepreneurs.show', $id)->with('success', 'Informations d\'activité mises à jour avec succès !');
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Erreur lors de la mise à jour de l\'activité : ' . $e->getMessage());
         }
     }
 }

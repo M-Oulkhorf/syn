@@ -52,27 +52,7 @@ class UpdateEntrepreneurRequest extends FormRequest
             'datedebut' => 'nullable|date',
             'datesortie' => 'nullable|date',
             'cadeau' => 'nullable|exists:cadeaus,id',
-            'entite' => 'required|exists:entites,id',
-            'contrat' => 'required|exists:type_contrats,id',
-            'poste' => 'required|string|max:255',
-            'datesignaturecontrat' => 'required|date',
-            'datefincontrat' => 'required|date|after_or_equal:datesignaturecontrat',
-            'datevisitemedicale' => 'nullable|date',
-            'situationvisite' => 'nullable|string|max:255',
-            'dateprochainevisite' => 'nullable|date|after_or_equal:datevisitemedicale',
-            'adhesionencoursNon' => 'required|in:0,1',
-            'nom_activite' => 'required|string|max:255',
-            'nom_commercial' => 'nullable|string|max:255',
-            'mot_cle_activite' => 'nullable|string|max:255',
-            'description_activite' => 'nullable|string|max:500',
-            'fiche_site' => 'nullable|in:0,1',
-            'lien_boutique_en_ligne' => 'nullable|url|max:255',
-            'necessite_stock' => 'required|in:0,1',
-            'date_dernier_etat_stock' => 'nullable|date',
-            'marge_salaire_activite' => 'nullable|numeric',
-            'salaire_activite' => 'nullable|numeric',
-            'boitier_sum_up' => 'nullable|string|max:255',
-            'rcpro_activite' => 'nullable|string|max:255',
+           
         ];
     }
     public function messages()
@@ -80,15 +60,7 @@ class UpdateEntrepreneurRequest extends FormRequest
         return [
             'codeAnalytique.required' => 'Le code analytique est requis.',
             'dateNaissance.required' => 'La date de naissance est requise.',
-            'entite.required' => 'L\'entité est requise.',
-            'contrat.required' => 'Le contrat est requis.',
-            'poste.required' => 'Le poste est requis.',
-            'datesignaturecontrat.required' => 'La date de signature est requise.',
-            'datefincontrat.required' => 'La date de fin est requise.',
-            'datefincontrat.after_or_equal' => 'La date de fin doit être égale ou postérieure à la date de signature.',
-            'nom_activite.required' => 'Le nom de l\'activité est requis.',
-            'fiche_site.required' => 'Veuillez indiquer si la fiche est présente sur le site.',
-            'necessite_stock.required' => 'Veuillez indiquer si l\'activité nécessite la réalisation d’un état des stocks.',
+            
         ];
     }
 }

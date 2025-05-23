@@ -39,8 +39,10 @@ Route::middleware(['custom.auth'])->group(function () {
     // Route pour gérer la soumission des données d'un nouvel entrepreneur
     Route::post('/entrepreneurs/store', [EntrepreneurController::class, 'store'])->name('entrepreneurs.store');
 
-    // Route pour mettre à jour les informations d'un entrepreneur existant
+    // Routes pour mettre à jour les informations d'un entrepreneur existant
     Route::put('/entrepreneurs/update/{id}', [EntrepreneurController::class, 'update'])->name('entrepreneurs.update');
+    Route::put('/entrepreneurs/update-contrat/{id}', [EntrepreneurController::class, 'updateContrat'])->name('contrat.update');
+    Route::put('/entrepreneurs/update-activite/{id}', [EntrepreneurController::class, 'updateActivite'])->name('activite.update');
 });
 
 

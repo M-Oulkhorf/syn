@@ -26,13 +26,12 @@
             $datedernieretatstock = $activite['date_dernier_etat_stock'];
         @endphp
 
-        {{-- Formulaire pour mettre à jour les informations de l'entrepreneur --}}
-        <form method="POST" action="{{ route('entrepreneurs.update', $entrepreneur->id) }}" id="form1" class="editable-form">
+        {{-- Affichage des informations personnelles de l'entrepreneur sous forme d'une collapse --}}
+        <x-collapsefield title="INFORMATIONS PERSONNELLES" id="1">
+            <form method="POST" action="{{ route('entrepreneurs.update', $entrepreneur->id) }}" id="form1" class="editable-form">
             @csrf
             @method('PUT')
-
-            {{-- Affichage des informations personnelles de l'entrepreneur sous forme d'une collapse --}}
-            <x-collapsefield title="INFORMATIONS PERSONNELLES" id="1">
+            
                 {{-- Informations de base de l'entrepreneur : N° Enregistrement et Matricule SILAE --}}
                 <div class="d-md-flex justify-content-between mt-2">
                     <x-form-field name="NEnregistrement" label="N° Enregistrement" :value="$entrepreneur->id" :disabled="true" required />
@@ -151,10 +150,21 @@
                 <div class="d-md-flex justify-content-between mt-2">
                     <x-form-field name="datesortie" label="Date de sortie" type="date" :value="$entrepreneur->date_sortie ? $entrepreneur->date_sortie: 'Aucune date'" :disabled="true"  />
                 </div>
-            </x-collapsefield>
 
-            {{-- Affichage des informations liées au contrat de l'entrepreneur sous forme d'une collapse --}}
-            <x-collapsefield title="CONTRAT (Statut actuel ou dernier statut avant sortie)" id="2">
+                {{-- Boutons pour modifier et enregistrer les informations de l'entrepreneur --}}
+                <div class="text-center mt-4">
+                    <button id="editButton1" class="btn btn-primary mr-2" type="button" onclick="toggleEditMode('form1', 'editButton1', 'saveButton1')" style="font-family: Arial, sans-serif;">Modifier</button>
+                    <button id="saveButton1" type="submit" class="btn btn-success d-none" style="font-family: Arial, sans-serif;">Enregistrer</button>
+                </div>
+            </form>
+        </x-collapsefield>
+
+        {{-- Affichage des informations liées au contrat de l'entrepreneur sous forme d'une collapse --}}
+        <x-collapsefield title="CONTRAT (Statut actuel ou dernier statut avant sortie)" id="2">
+            <form method="POST" action="{{ route('contrat.update', $entrepreneur->id) }}" id="form2" class="editable-form">
+            @csrf
+            @method('PUT')
+
                 {{-- Sélection de l'entité et statut d'adhésion --}}
                 <div class="d-md-flex justify-content-between mt-2">
                     <div class="col-md-5">
@@ -204,11 +214,21 @@
                 {{-- Date de prochaine visite médicale --}}
                 <div class="d-md-flex justify-content-between mt-2">
                     <x-form-field name="dateprochainevisite" label="Date de prochaine visite" type="date" :value="$dateprochainevisite ? $dateprochainevisite : ''" :disabled="true"  />
-                </div>         
-            </x-collapsefield>
+                </div>  
+
+                {{-- Boutons pour modifier et enregistrer les informations de l'entrepreneur --}}
+                <div class="text-center mt-4">
+                    <button id="editButton2" class="btn btn-primary mr-2" type="button" onclick="toggleEditMode('form2', 'editButton2', 'saveButton2')" style="font-family: Arial, sans-serif;">Modifier</button>
+                    <button id="saveButton2" type="submit" class="btn btn-success d-none" style="font-family: Arial, sans-serif;">Enregistrer</button>
+                </div>
+            </form>       
+        </x-collapsefield>
         
-            {{-- Affichage des informations liées à l'activité de l'entrepreneur sous forme d'une collapse --}}
-            <x-collapsefield title="ACTIVITE" id="3">
+        {{-- Affichage des informations liées à l'activité de l'entrepreneur sous forme d'une collapse --}}
+        <x-collapsefield title="ACTIVITE" id="3">
+            <form method="POST" action="{{ route('activite.update', $entrepreneur->id) }}" id="form3" class="editable-form">
+            @csrf
+            @method('PUT')
                 {{-- Informations sur l'activité et le nom commercial --}}
                 <div class="d-md-flex justify-content-between mt-2">
                     <x-form-field name="nom_activite" label="Activite" :value="$activite['nom_activite'] ? $activite['nom_activite'] : 'pas concerné'" :disabled="true"  />
@@ -244,13 +264,13 @@
                     <x-form-field name="boitier_sum_up" label="Nom de boitier SUM UP" :value="$boitierSumUp" :disabled="true"  />
                     <x-form-field name="rcpro_activite" label="RCPRPO MACIF" :value="$activite['rcpro_activite'] ? $activite['rcpro_activite'] : 'pas concerné'" :disabled="true"  />
                 </div>
-            </x-collapsefield>
 
-            {{-- Boutons pour modifier et enregistrer les informations de l'entrepreneur --}}
-            <div class="text-center mt-4">
-                <button id="editButton1" class="btn btn-primary mr-2" type="button" onclick="toggleEditMode('form1', 'editButton1', 'saveButton1')" style="font-family: Arial, sans-serif;">Modifier</button>
-                <button id="saveButton1" type="submit" class="btn btn-success d-none" style="font-family: Arial, sans-serif;">Enregistrer</button>
-            </div>
-        </form>
+                {{-- Boutons pour modifier et enregistrer les informations de l'entrepreneur --}}
+                <div class="text-center mt-4">
+                    <button id="editButton3" class="btn btn-primary mr-2" type="button" onclick="toggleEditMode('form3', 'editButton3', 'saveButton3')" style="font-family: Arial, sans-serif;">Modifier</button>
+                    <button id="saveButton3" type="submit" class="btn btn-success d-none" style="font-family: Arial, sans-serif;">Enregistrer</button>
+                </div>
+            </form>
+        </x-collapsefield>
     </div>
 </x-master>

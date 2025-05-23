@@ -65,7 +65,7 @@ class Entrepreneur extends Model
     {
         return $this->belongsTo(Accompagnant::class, 'Accompagnant_id');
     }
-    public function travailler()
+    public function Travailler()
     {
         return $this->hasMany(Travailler::class, 'Entrepreneur_id');
     }

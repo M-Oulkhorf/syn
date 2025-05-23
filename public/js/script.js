@@ -1,8 +1,21 @@
 // Fonction pour activer/désactiver le mode d'édition d'un formulaire
 function toggleEditMode(formId, editButtonId, saveButtonId) {
     const form = document.getElementById(formId);
-    const inputs = form.querySelectorAll("input, select, textarea");
-    inputs.forEach((input) => (input.disabled = !input.disabled));
+
+    // Vérifier la présence du champ _method
+    const methodField = form.querySelector('input[name="_method"]');
+
+    // Vérifier la présence du token CSRF
+    const csrfField = form.querySelector('input[name="_token"]');
+
+    form.querySelectorAll("input, select, textarea").forEach((input) => {
+        // On garde les hidden (csrf + method) toujours actifs
+        if (input.type === "hidden") {
+            return;
+        }
+        input.disabled = !input.disabled;
+    });
+
     document.getElementById(editButtonId).classList.toggle("d-none");
     document.getElementById(saveButtonId).classList.toggle("d-none");
 }
