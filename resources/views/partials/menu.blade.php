@@ -12,24 +12,6 @@
         </li>
         
         <li>
-            <a href="#">
-                <span class="icon">
-                    <ion-icon name="notifications-outline"></ion-icon>
-                </span>
-                <span class="title">Notifications</span>
-            </a>
-        </li>
-        
-        <li>
-            <a href="#">
-                <span class="icon">
-                    <ion-icon name="settings-outline"></ion-icon>
-                </span>
-                <span class="title">Profile</span>
-            </a>
-        </li>
-        
-        <li>
             <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
